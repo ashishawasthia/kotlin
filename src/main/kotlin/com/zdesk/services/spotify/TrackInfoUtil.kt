@@ -3,6 +3,8 @@ package com.zdesk.services.spotify
 import com.google.gson.Gson
 import com.zdesk.services.model.SpotifyToken
 import com.zdesk.services.model.TrackDetail
+import com.zdesk.services.properties.SpotifyProperties
+import com.zdesk.services.spotify.track.SpotifyTrack
 import java.nio.charset.StandardCharsets
 import java.util.ArrayList
 import java.util.Base64
@@ -16,21 +18,22 @@ import org.apache.http.impl.client.HttpClients
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
 
-class TrackInfoUtil() {
+class TrackInfoUtil(private var spotifyProperties: SpotifyProperties) {
 
     fun getTrackInfoFromSpotify(trackId: String): TrackDetail {
         val token = getSpotifyToken()
         val trackDetails = getTrackInfo(trackId, token.access_token)
-        return TrackDetail(trackDetails, trackId)
+        return TrackDetail(trackDetails.name,
+                            trackDetails.album.artists.get(0).name,
+                            trackDetails.album.images.get(0).url)
     }
 
     fun getSpotifyToken(): SpotifyToken {
-        val spotifyTokenUri = "https://accounts.spotify.com/api/token"
         val authStringBase64 = getBase64AuthorizationHeader()
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
-        val httpPost: HttpPost = HttpPost(spotifyTokenUri)
+        val httpPost: HttpPost = HttpPost(spotifyProperties.tokenurl)
         val params: ArrayList<NameValuePair> = ArrayList<NameValuePair>()
-        params.add(BasicNameValuePair("grant_type", "client_credentials"))
+        params.add(BasicNameValuePair("grant_type", spotifyProperties.granttype))
         httpPost.setEntity(UrlEncodedFormEntity(params))
         httpPost.addHeader("Authorization", "Basic ".plus(authStringBase64))
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -41,19 +44,19 @@ class TrackInfoUtil() {
     }
 
     fun getBase64AuthorizationHeader(): String {
-        val authString = "80a887484bae44fda8d1e66546b21adc:2705fb33625d44b68510802f4069b7e7"
+        val authString = spotifyProperties.clientid.plus(":").plus(spotifyProperties.clientsecret)
         val encodedString: String = Base64.getEncoder().encodeToString(authString.toByteArray())
         return encodedString
     }
 
-    fun getTrackInfo(trackId: String, accessToken: String): Any {
-        val trackUri = "https://api.spotify.com/v1/tracks/".plus(trackId)
+    fun getTrackInfo(trackId: String, accessToken: String): SpotifyTrack {
+        val trackUri = spotifyProperties.trackurl.plus(trackId)
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
         val httpPost: HttpGet = HttpGet(trackUri)
         httpPost.addHeader("Authorization", "Bearer ".plus(accessToken))
         val httpresponse: HttpResponse = httpclient.execute(httpPost)
         val responseBody: String = EntityUtils.toString(httpresponse.getEntity(), StandardCharsets.UTF_8)
         val gson = Gson()
-        return gson.fromJson(responseBody, Object::class.java)
+        return gson.fromJson(responseBody, SpotifyTrack::class.java)
     }
 }
