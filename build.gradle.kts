@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
   id("org.springframework.boot") version "2.4.0-SNAPSHOT"
@@ -6,7 +7,7 @@ plugins {
   kotlin("jvm") version "1.4.0"
   kotlin("plugin.spring") version "1.4.0"
 }
-group = "in.zdesk"
+group = "com.zdesk"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 repositories {
@@ -33,4 +34,3 @@ tasks.withType<KotlinCompile> {
     jvmTarget = "1.8"
   }
 }
-

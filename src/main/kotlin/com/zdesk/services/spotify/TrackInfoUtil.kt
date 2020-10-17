@@ -2,7 +2,6 @@ package com.zdesk.services.spotify
 
 import com.google.gson.Gson
 import com.zdesk.services.model.SpotifyToken
-import com.zdesk.services.model.TrackDetail
 import com.zdesk.services.properties.SpotifyProperties
 import com.zdesk.services.spotify.track.SpotifyTrack
 import java.nio.charset.StandardCharsets
@@ -19,14 +18,6 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
 
 class TrackInfoUtil(private var spotifyProperties: SpotifyProperties) {
-
-    fun getTrackInfoFromSpotify(trackId: String): TrackDetail {
-        val token = getSpotifyToken()
-        val trackDetails = getTrackInfo(trackId, token.access_token)
-        return TrackDetail(trackDetails.name,
-                            trackDetails.album.artists.get(0).name,
-                            trackDetails.album.images.get(0).url)
-    }
 
     fun getSpotifyToken(): SpotifyToken {
         val authStringBase64 = getBase64AuthorizationHeader()
