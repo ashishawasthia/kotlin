@@ -1,6 +1,4 @@
 - Beginner Kotlin Microservice to talk to spotify and get the trackinfo
-- At the moment there is no exception handeling available
-- At the moment there is no unit test to test the service at build time
 
 - run application and then hit URI http://server:port/track/trackId [please update application.properties if you are running application as gradle bootrun]
 
@@ -31,6 +29,4 @@ Build/run-
 
 
 TODO:
-- Exception handeling
-- Unit test
 - add docker process as part of gradle (though springboot has builtin support for this but somehow it was getting stuck at 83%)
