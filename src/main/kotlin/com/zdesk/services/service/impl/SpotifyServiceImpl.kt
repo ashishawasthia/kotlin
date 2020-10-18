@@ -1,5 +1,6 @@
 package com.zdesk.services.service.impl
 
+import com.zdesk.services.exception.GenericException
 import com.zdesk.services.model.TrackDetail
 import com.zdesk.services.properties.SpotifyProperties
 import com.zdesk.services.service.SpotifyService
@@ -14,11 +15,15 @@ class SpotifyServiceImpl : SpotifyService {
     lateinit var properties: SpotifyProperties
 
     override fun getTrackInfoFromSpotify(trackId: String): TrackDetail {
-        val trackInfoUtil = TrackInfoUtil(properties)
+        try {
+            val trackInfoUtil = TrackInfoUtil(properties)
         val token = trackInfoUtil.getSpotifyToken()
         val trackDetails = trackInfoUtil.getTrackInfo(trackId, token.access_token)
         return TrackDetail(trackDetails.name,
                             trackDetails.album.artists.get(0).name,
                             trackDetails.album.images.get(0).url)
+        } catch (e: Exception) {
+            throw GenericException(e.message ?: "")
+        }
     }
 }
